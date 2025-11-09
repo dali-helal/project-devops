@@ -12,24 +12,25 @@ pipeline {
                     credentialsId: 'github-token'
             }
         }
+
         stage('Docker Login') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-        stage('Build') {
+
+        stage('Build & Push Docker Compose Images') {
             steps {
-                sh 'docker build -t $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER .'
+                sh '''
+                    docker-compose -f docker-compose.yml build
+                    docker-compose -f docker-compose.yml push
+                '''
             }
         }
-        stage('Push') {
-            steps {
-                sh 'docker push $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER'
-            }
-        }
+
         stage('Cleanup') {
             steps {
-                sh 'docker rmi $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER || true'
+                sh 'docker-compose -f docker-compose.yml down --rmi all || true'
                 sh 'docker logout'
             }
         }
