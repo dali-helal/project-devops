@@ -12,6 +12,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
+    image: dali917/mern-server:${BUILD_NUMBER:-latest}
     container_name: mern-server
     restart: unless-stopped
     ports:
@@ -20,19 +21,18 @@ services:
       - MONGO_URI=mongodb://mongo:27017/devops_db
     depends_on:
       - mongo
-    #image: dali917/mern-server:${BUILD_NUMBER}
 
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
+    image: dali917/mern-client:${BUILD_NUMBER:-latest}
     container_name: mern-client
     restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
       - server
-    #image: dali917/mern-client:${BUILD_NUMBER}
 
 volumes:
   mongo-data:
