@@ -5,27 +5,29 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
     stages {
-        stage('Checkout'){
-            steps{
-                checkout scm
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                    url: 'https://github.com/dali-helal/project-devops.git',
+                    credentialsId: 'github-token'
             }
         }
-        stage('Init'){
-            steps{
+        stage('Docker Login') {
+            steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-        stage('Build'){
+        stage('Build') {
             steps {
                 sh 'docker build -t $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER .'
             }
         }
-        stage('Deliver'){
+        stage('Push') {
             steps {
                 sh 'docker push $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER'
             }
         }
-        stage('Cleanup'){
+        stage('Cleanup') {
             steps {
                 sh 'docker rmi $DOCKERHUB_CREDENTIALS_USR/reactapp:$BUILD_NUMBER || true'
                 sh 'docker logout'
