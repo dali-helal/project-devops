@@ -27,13 +27,13 @@ pipeline {
             steps {
                 echo '========== Starting Docker Compose Build =========='
                 sh '''
-                    docker-compose -f docker-compose.yml build
+                    docker compose -f docker-compose.yml build
                 '''
                 echo '========== Build Completed Successfully =========='
                 
                 echo '========== Starting Docker Compose Push =========='
                 sh '''
-                    docker-compose -f docker-compose.yml push
+                    docker compose -f docker-compose.yml push
                 '''
                 echo '========== Push Completed Successfully =========='
             }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 echo '========== Starting Cleanup Stage =========='
                 echo 'Removing Docker Compose resources...'
-                sh 'docker-compose -f docker-compose.yml down --rmi all || true'
+                sh 'docker compose -f docker-compose.yml down --rmi all || true'
                 echo 'Docker Compose cleanup completed'
                 
                 echo 'Logging out from Docker...'
