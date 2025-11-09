@@ -9,7 +9,6 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKERHUB_USERNAME = 'dali917'
         BUILD_TAG = "${env.BUILD_NUMBER}"
-        // Image names
         SERVER_IMAGE = "${DOCKERHUB_USERNAME}/mern-server"
         CLIENT_IMAGE = "${DOCKERHUB_USERNAME}/mern-client"
     }
@@ -21,7 +20,7 @@ pipeline {
                 echo '========== Starting Checkout =========='
                 echo '=========================================='
                 checkout scm
-                echo '✓ Checkout Completed Successfully'
+                echo 'Checkout Completed Successfully'
             }
         }
 
@@ -32,7 +31,7 @@ pipeline {
                 echo '=========================================='
                 echo "Docker Hub Username: ${DOCKERHUB_USERNAME}"
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                echo '✓ Docker Login Successful'
+                echo 'Docker Login Successful'
             }
         }
 
@@ -49,9 +48,9 @@ pipeline {
                     docker compose -f docker-compose.yml build server client
                 """
                 
-                echo '✓ Build Completed Successfully'
+                echo 'Build Completed Successfully'
                 echo ''
-                echo '📦 Built Images:'
+                echo 'Built Images:'
                 sh """
                     docker images | grep '${DOCKERHUB_USERNAME}' | grep -E 'mern-server|mern-client'
                 """
@@ -65,17 +64,15 @@ pipeline {
                 echo '=========================================='
                 
                 sh """
-                    # Tag server image
                     docker tag ${SERVER_IMAGE}:${BUILD_TAG} ${SERVER_IMAGE}:latest
-                    echo "✓ Tagged ${SERVER_IMAGE}:${BUILD_TAG} as latest"
+                    echo "Tagged ${SERVER_IMAGE}:${BUILD_TAG} as latest"
                     
-                    # Tag client image
                     docker tag ${CLIENT_IMAGE}:${BUILD_TAG} ${CLIENT_IMAGE}:latest
-                    echo "✓ Tagged ${CLIENT_IMAGE}:${BUILD_TAG} as latest"
+                    echo "Tagged ${CLIENT_IMAGE}:${BUILD_TAG} as latest"
                 """
                 
                 echo ''
-                echo '📋 Current Images with Tags:'
+                echo 'Current Images with Tags:'
                 sh """
                     docker images | grep '${DOCKERHUB_USERNAME}' | grep -E 'mern-server|mern-client'
                 """
@@ -92,27 +89,27 @@ pipeline {
                     echo "Pushing server image..."
                     docker push ${SERVER_IMAGE}:${BUILD_TAG}
                     docker push ${SERVER_IMAGE}:latest
-                    echo "✓ Server image pushed"
+                    echo "Server image pushed"
                     
                     echo ""
                     echo "Pushing client image..."
                     docker push ${CLIENT_IMAGE}:${BUILD_TAG}
                     docker push ${CLIENT_IMAGE}:latest
-                    echo "✓ Client image pushed"
+                    echo "Client image pushed"
                 """
                 
                 echo ''
                 echo '=========================================='
-                echo '✓ All Images Pushed Successfully!'
+                echo 'All Images Pushed Successfully!'
                 echo '=========================================='
                 echo ''
-                echo '📦 Pushed Images:'
+                echo ' Pushed Images:'
                 echo "   - ${SERVER_IMAGE}:${BUILD_TAG}"
                 echo "   - ${SERVER_IMAGE}:latest"
                 echo "   - ${CLIENT_IMAGE}:${BUILD_TAG}"
                 echo "   - ${CLIENT_IMAGE}:latest"
                 echo ''
-                echo "🔗 View your repositories:"
+                echo " View your repositories:"
                 echo "   Server: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-server/tags"
                 echo "   Client: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-client/tags"
             }
@@ -125,11 +122,11 @@ pipeline {
                 echo '=========================================='
                 
                 sh """
-                    echo "📦 Images before cleanup:"
+                    echo " Images before cleanup:"
                     docker images | grep '${DOCKERHUB_USERNAME}' | grep -E 'mern-server|mern-client' || echo "No images found"
                     echo ""
                     
-                    echo "🧹 Removing old builds (keeping latest and build #${BUILD_TAG})..."
+                    echo " Removing old builds (keeping latest and build #${BUILD_TAG})..."
                     
                     # Remove old server images
                     for tag in \$(docker images ${SERVER_IMAGE} --format "{{.Tag}}" | grep -v 'latest' | grep -v '${BUILD_TAG}'); do
@@ -147,11 +144,11 @@ pipeline {
                     docker image prune -f
                     
                     echo ""
-                    echo "📦 Images after cleanup:"
+                    echo " Images after cleanup:"
                     docker images | grep '${DOCKERHUB_USERNAME}' | grep -E 'mern-server|mern-client' || echo "No images found"
                 """
                 
-                echo '✓ Cleanup Completed'
+                echo ' Cleanup Completed'
             }
         }
 
@@ -161,7 +158,7 @@ pipeline {
                 echo '========== Docker Logout =========='
                 echo '=========================================='
                 sh 'docker logout'
-                echo '✓ Logged out from Docker Hub'
+                echo ' Logged out from Docker Hub'
             }
         }
     }
@@ -170,28 +167,21 @@ pipeline {
         success {
             echo ''
             echo '=========================================='
-            echo '  ✓✓✓ PIPELINE COMPLETED SUCCESSFULLY ✓✓✓'
-            echo '=========================================='
+            echo '  PIPELINE COMPLETED SUCCESSFULLY '
             echo ''
-            echo "  📦 Build Number: ${BUILD_TAG}"
-            echo "  🏷️  Tags Created: ${BUILD_TAG}, latest"
+            echo "   Build Number: ${BUILD_TAG}"
+            echo "   Tags Created: ${BUILD_TAG}, latest"
             echo ''
-            echo "  🔗 Docker Hub Repositories:"
-            echo "     • Server: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-server"
-            echo "     • Client: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-client"
+            echo "  Docker Hub Repositories:"
+            echo "     Server: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-server"
+            echo "     Client: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/mern-client"
             echo ''
-            echo "  📥 Pull Commands:"
-            echo "     docker pull ${SERVER_IMAGE}:latest"
-            echo "     docker pull ${CLIENT_IMAGE}:latest"
-            echo ''
-            echo '=========================================='
         }
         
         failure {
             echo ''
             echo '=========================================='
-            echo '  ✗✗✗ PIPELINE FAILED ✗✗✗'
-            echo '=========================================='
+            echo '  PIPELINE FAILED'
             echo ''
             echo "  Build Number: ${BUILD_TAG}"
             echo "  Check the logs above for error details"
@@ -200,14 +190,12 @@ pipeline {
         }
         
         always {
-            echo ''
             echo 'Performing final cleanup...'
-            // Always cleanup, even on failure
             sh '''
                 docker logout || true
                 docker system prune -f || true
             '''
-            echo '✓ Final cleanup completed'
+            echo 'Final cleanup completed'
         }
     }
 }
