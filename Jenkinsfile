@@ -46,11 +46,11 @@ pipeline {
 
                 sh """
                 docker run --rm \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
-                    -v \$HOME/.kube:/root/.kube \
-                    -v \$(pwd)/k8s:/k8s \
-                    lachlanevenson/k8s-kubectl:latest \
-                    sh -c "
+                -v /root/.kube:/root/.kube \
+                -v /var/jenkins_home/workspace/mini-project-devops/k8s:/k8s \
+                --entrypoint /bin/sh \
+                bitnami/kubectl:latest -c "
+                
                         echo '--- Updating server image ---'
                         kubectl set image deployment/mern-server mern-server=${SERVER_IMAGE}:${BUILD_TAG} --record || true
                         kubectl apply -f /k8s/deployment-server.yaml
