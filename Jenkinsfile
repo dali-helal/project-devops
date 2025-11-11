@@ -152,6 +152,23 @@ pipeline {
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo '=== Deploy to Docker Desktop Kubernetes ==='
+                sh """
+                    # Server
+                    kubectl set image deployment/mern-server mern-server=${SERVER_IMAGE}:${BUILD_TAG} --record || \
+                    kubectl apply -f k8s/deployment-server.yaml
+                    kubectl rollout status deployment/mern-server
+
+                    # Client
+                    kubectl set image deployment/mern-client mern-client=${CLIENT_IMAGE}:${BUILD_TAG} --record || \
+                    kubectl apply -f k8s/deployment-client.yaml
+                    kubectl rollout status deployment/mern-client
+                """
+            }
+        }
+
         stage('Docker Logout') {
             steps {
                 echo '=========================================='
