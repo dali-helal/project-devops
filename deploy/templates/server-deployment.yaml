@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mern-server
+  namespace: mern-app
+  labels:
+    app: mern-server
+spec:
+  replicas: {{ .Values.server.replicas }}
+  selector:
+    matchLabels:
+      app: mern-server
+  template:
+    metadata:
+      labels:
+        app: mern-server
+    spec:
+      containers:
+      - name: server
+        image: "{{ .Values.server.image }}:{{ .Values.server.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.server.port }}
+        env:
+        - name: MONGO_URI
+          value: "{{ .Values.server.env.MONGO_URI }}"
+        - name: PORT
+          value: "{{ .Values.server.port | quote }}"

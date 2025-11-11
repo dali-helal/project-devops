@@ -1,0 +1,19 @@
+server:
+  image: dali917/mern-server
+  tag: "latest"
+  replicas: 1
+  port: 5000
+  env:
+    MONGO_URI: "mongodb://mongo:27017/mern"
+
+client:
+  image: dali917/mern-client
+  tag: "latest"
+  replicas: 1
+  port: 3000
+
+mongodb:
+  enabled: true
+  port: 27017
+
+imagePullPolicy: IfNotPresent
