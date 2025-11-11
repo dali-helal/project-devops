@@ -153,6 +153,12 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
+            agent {
+                docker {
+                    image 'bitnami/kubectl:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.kube:/root/.kube'
+                }
+            }
             steps {
                 echo '=========================================='
                 echo '========== Deploy to Kubernetes =========='
