@@ -49,7 +49,7 @@ pipeline {
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v \$HOME/.kube:/root/.kube \
                     -v \$(pwd)/k8s:/k8s \
-                    bitnami/kubectl:latest \
+                    lachlanevenson/k8s-kubectl:latest \
                     sh -c "
                         echo '--- Updating server image ---'
                         kubectl set image deployment/mern-server mern-server=${SERVER_IMAGE}:${BUILD_TAG} --record || true
